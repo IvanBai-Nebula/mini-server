@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class MiniAdminServerConfig(AppConfig):
+class MiniFrontApiConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "mini_admin_server"
+    name = "mini_front_api"
