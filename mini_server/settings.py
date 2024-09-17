@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import pymysql
+
+# 使用pymysql驱动
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +28,11 @@ SECRET_KEY = "django-insecure-ck6s6z4ku1qvr2je#npa!ba=en0nf#f819#%5q#&^7)4x0!-1@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0"
+]
 
 # Application definition
 
@@ -74,8 +82,12 @@ WSGI_APPLICATION = "mini_server.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mini',
+        'USER': 'root',
+        'PASSWORD': 'byfcjx',
+        'HOST': "localhost",
+        'PORT': 3306,
     }
 }
 
