@@ -1,0 +1,31 @@
+# 忽略所有应用的 migrations 目录
+*/migrations/*
+
+# 忽略 Python 缓存文件
+*.pyc
+__pycache__/
+
+# 忽略虚拟环境
+venv/
+.env/
+
+# 忽略日志文件
+*.log
+logs/
+
+# 忽略 IDE 生成的文件
+*.swp
+*.swo
+*.swn
+.idea/
+.vscode/
+
+# 忽略其他临时文件
+*.tmp
+*.bak
+*.orig
+
+# 忽略其他可能的配置文件
+*.local
+*.env
+.env.*
