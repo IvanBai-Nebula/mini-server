@@ -1,5 +1,6 @@
-# 忽略所有应用的 migrations 目录
+# 忽略所有应用的 migrations 目录下的内容
 */migrations/*
+!*/migrations/
 
 # 忽略 Python 缓存文件
 *.pyc
