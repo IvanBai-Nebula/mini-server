@@ -1,3 +1,5 @@
 # 忽略所有应用的 migrations 目录下的内容
 */migrations/*
 !*/migrations/
+
+.idea/
