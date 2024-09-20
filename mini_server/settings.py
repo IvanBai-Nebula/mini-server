@@ -97,22 +97,22 @@ WSGI_APPLICATION = "mini_server.wsgi.application"
 
 DATABASES = {
     # 改成自己的
-    "default": {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mini',
-        'USER': 'root',
-        'PASSWORD': 'byfcjx',
-        'HOST': "localhost",
-        'PORT': 3306,
-    }
     # "default": {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'mini',
     #     'USER': 'root',
     #     'PASSWORD': 'byfcjx',
-    #     'HOST': "tilony.top",
+    #     'HOST': "localhost",
     #     'PORT': 3306,
     # }
+    "default": {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mini',
+        'USER': 'root',
+        'PASSWORD': 'byfcjx',
+        'HOST': "tilony.top",
+        'PORT': 3306,
+    }
 }
 
 # Password validation
