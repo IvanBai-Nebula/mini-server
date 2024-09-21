@@ -18,5 +18,9 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    # path('user/', include("user.urls")),  # 用户模块
+    path('user/', include("user.urls")),
+    # path('role/', include("role.urls")),
+    # path('media/', include("media.urls")),
+    # path('questions/', include("questions.urls")),
+
 ]

@@ -1,5 +1,5 @@
 from django.db import models
-from public.models import BaseModel
+from utils.models import BaseModel
 from role.models import Role
 from media.models import Unit
 from questions.models import Set
@@ -11,8 +11,8 @@ from questions.models import Set
 # 电话号码字段也是唯一的，但是允许为空或空白。
 # 角色字段是一个外键，关联到Role模型。
 class User(BaseModel):
-    user_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user_name = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 用于后台管理登陆使用
+    id = models.AutoField(primary_key=True)  # 自动递增的主键
+    username = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 用于后台管理登陆使用
     password = models.CharField(max_length=255, null=True, blank=True)  # 用于后台管理登陆使用
     openid = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 用户唯一标识
     phone = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 电话号码允许为空
@@ -20,9 +20,6 @@ class User(BaseModel):
 
     class Meta:
         db_table = 'user'  # 数据库表名
-
-    def __str__(self):
-        return f"{self.user_id}: {self.openid}"  # 返回用户的字符串表示形式
 
 
 # 定义睡眠质量的选择项
@@ -38,8 +35,8 @@ SLEEP_QUALITY_CHOICES = (
 # 用户信息模型继承自BaseModel，包含了用户的详细信息如昵称、头像、身高、体重等。
 # 所有字段都允许为空或空白。
 class UserInfo(BaseModel):
-    info_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='info')  # 关联用户信息
+    id = models.AutoField(primary_key=True)  # 自动递增的主键
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='info')  # 关联用户信息
     nickname = models.CharField(max_length=255, null=True, blank=True)  # 昵称允许为空
     avatar = models.CharField(max_length=255, null=True, blank=True)  # 头像允许为空
     height = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True)  # 身高允许为空
@@ -53,47 +50,39 @@ class UserInfo(BaseModel):
     class Meta:
         db_table = 'user_info'  # 数据库表名
 
-    def __str__(self):
-        return f"{self.info_id}: {self.user_id.openid} - {self.nickname}"  # 返回用户的字符串表示形式
-
 
 # 定义收藏模型
 # 收藏模型继承自BaseModel，记录了用户收藏的内容。
 class Collections(BaseModel):
     collection_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collections', db_index=True)  # 关联用户信息
-    unit_id = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='collections')  # 关联媒体内容
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collections', db_index=True)  # 关联用户信息
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='collections')  # 关联媒体内容
 
     class Meta:
         db_table = 'collections'  # 数据库表名
-
-    def __str__(self):
-        return f"{self.collection_id}: {self.user_id.openid} - {self.unit_id.unit_id}"  # 返回收藏的字符串表示形式
 
 
 # 定义浏览历史模型
 # 浏览历史模型继承自BaseModel，记录了用户的浏览记录。
 class BrowsingHistory(BaseModel):
-    history_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='browsing_history',
-                                db_index=True)  # 关联用户信息
-    unit_id = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='browsing_history')  # 关联媒体内容
+    id = models.AutoField(primary_key=True)  # 自动递增的主键
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='browsing_history',
+                             db_index=True)  # 关联用户信息
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='browsing_history')  # 关联媒体内容
 
     class Meta:
         db_table = 'browsing_history'  # 数据库表名
-
-    def __str__(self):
-        return f"{self.history_id}: {self.user_id.openid} - {self.unit_id.unit_id}"  # 返回浏览历史的字符串表示形式
 
 
 # 定义排行榜模型
 # 排行榜模型继承自BaseModel，记录了用户的答题情况。
 class Leaderboard(BaseModel):
-    leaderboard_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)  # 关联用户信息
-    set_id = models.ForeignKey(Set, on_delete=models.CASCADE)  # 关联问题集
+    id = models.AutoField(primary_key=True)  # 自动递增的主键
+    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)  # 关联用户信息
+    set = models.ForeignKey(Set, on_delete=models.CASCADE)  # 关联问题集
     total_answers = models.IntegerField()  # 总答题数
     total_score = models.IntegerField()  # 总得分
+    correctness = models.FloatField()  # 正确率
 
     class Meta:
         db_table = 'leaderboard'  # 数据库表名
@@ -101,9 +90,9 @@ class Leaderboard(BaseModel):
 
 # 定义聊天记录模型
 class ChatRecord(BaseModel):
-    record_id = models.AutoField(primary_key=True)
-    sender_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender', db_index=True)
-    receiver_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    id = models.AutoField(primary_key=True)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender', db_index=True)
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
     content = models.TextField()
     image = models.CharField(max_length=255)
 

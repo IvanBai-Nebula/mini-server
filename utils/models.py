@@ -1,5 +1,5 @@
 from django.db import models
-from public.manager import BaseManager
+from utils.manager import BaseManager
 
 
 # Create your models here.
@@ -14,9 +14,6 @@ class BaseModel(models.Model):
     class Meta:
         ordering = ['-updated_at']
         abstract = True
-
-    def __str__(self):
-        return f"{self.__class__.__name__} (id={self.id})"
 
     def delete(self, using=None, keep_parents=False):
         """ Soft delete the object instead of actually deleting it. """
