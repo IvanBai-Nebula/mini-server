@@ -1,25 +1,44 @@
+import uuid
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from utils.models import BaseModel
-from role.models import Role
 from media.models import Unit
 from questions.models import Set
 
 
-# 定义用户模型
-class User(BaseModel):
-    id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 用于后台管理登陆使用
-    password = models.CharField(max_length=255, null=True, blank=True)  # 用于后台管理登陆使用
+class CustomUser(AbstractUser):
+    """
+    定义用户
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    username = models.CharField(max_length=20, unique=True)  # 用于后台管理登陆使用
+    password = models.CharField(max_length=255)  # 用于后台管理登陆使用
     avatar = models.CharField(max_length=255, null=True, blank=True)  # 头像允许为空
-    openid = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 用户唯一标识
-    phone_validator = RegexValidator(regex=r'^\+?1?\d{9,15}$', message="电话号码格式不正确")
-    phone = models.CharField(max_length=255, unique=True, null=True, blank=True, validators=[phone_validator])  # 添加验证
-    role = models.ForeignKey(Role, on_delete=models.CASCADE)
+    openid = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 微信用户唯一标识
+    phone = models.CharField(max_length=255, unique=True, null=True, blank=True)  # 添加验证
+    is_staff = models.BooleanField(default=False)  # 管理员权限
+    is_active = models.BooleanField(default=True)  # 是否激活
 
     class Meta:
-        db_table = 'user'  # 数据库表名
+        db_table = 'custom_user'  # 数据库表名
+
+    def __str__(self):
+        return self.username
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
+        self._password = raw_password
+
+    def register_wx(self, *args, **kwargs):
+        if self.openid and not self.username:
+            self.username = f"微信_{self.openid}"
+        if self.openid and not self.password:
+            self.password = self.openid
+        self.set_password(self.password)
+        super().save(*args, **kwargs)
 
 
 # 定义睡眠质量的选择项
@@ -36,7 +55,7 @@ SLEEP_QUALITY_CHOICES = (
 # 所有字段都允许为空或空白。
 class UserInfo(BaseModel):
     id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_info')  # 关联用户信息
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_info')  # 关联用户信息
     height = models.DecimalField(max_digits=3, decimal_places=2, null=True, blank=True,
                                  validators=[MinValueValidator(0.00), MaxValueValidator(3.00)])  # 身高范围0-3米
     weight = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True,
@@ -55,7 +74,8 @@ class UserInfo(BaseModel):
 # 收藏模型继承自BaseModel，记录了用户收藏的内容。
 class Collections(BaseModel):
     collection_id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_collections', db_index=True)  # 关联用户信息
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_collections',
+                             db_index=True)  # 关联用户信息
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='unit_collections')  # 关联媒体内容
 
     class Meta:
@@ -66,7 +86,7 @@ class Collections(BaseModel):
 # 浏览历史模型继承自BaseModel，记录了用户的浏览记录。
 class BrowsingHistory(BaseModel):
     id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_browsing_history',
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_browsing_history',
                              db_index=True)  # 关联用户信息
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='unit_browsing_history')  # 关联媒体内容
 
@@ -78,7 +98,7 @@ class BrowsingHistory(BaseModel):
 # 排行榜模型继承自BaseModel，记录了用户的答题情况。
 class Leaderboard(BaseModel):
     id = models.AutoField(primary_key=True)  # 自动递增的主键
-    user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)  # 关联用户信息
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, db_index=True)  # 关联用户信息
     set = models.ForeignKey(Set, on_delete=models.CASCADE)  # 关联问题集
     total_answers = models.IntegerField()  # 总答题数
     total_score = models.IntegerField()  # 总得分
@@ -91,8 +111,8 @@ class Leaderboard(BaseModel):
 # 定义聊天记录模型
 class ChatRecord(BaseModel):
     id = models.AutoField(primary_key=True)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender', db_index=True)
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='sender', db_index=True)
+    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='receiver')
     content = models.TextField()
     image = models.CharField(max_length=255)
 
