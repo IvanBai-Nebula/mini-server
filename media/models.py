@@ -43,3 +43,21 @@ class Unit(BaseModel):
 
     class Meta:
         db_table = 'unit'
+
+
+class MediaFile(models.Model):
+    id = models.AutoField(primary_key=True)
+    MEDIA_TYPE_CHOICES = [
+        ('image', 'Image'),
+        ('audio', 'Audio'),
+        ('video', 'Video'),
+    ]
+    title = models.CharField(max_length=255)
+    file_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
+    file = models.FileField(upload_to='uploads/')  # 文件将上传到 media/uploads 路径
+
+    class Meta:
+        db_table = 'media_file'
+
+    def __str__(self):
+        return self.title

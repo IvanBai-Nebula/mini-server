@@ -14,6 +14,12 @@ class UserInfoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class UserInfoSerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = ("nickname", "age", "height", "weight", "blood_pressure", "blood_sugar", "blood_fat", "sleep_quality")
+
+
 class CollectionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collections
