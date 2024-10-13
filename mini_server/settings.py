@@ -125,7 +125,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'weixin.CustomerUser'
+AUTH_USER_MODEL = 'admin.User'
 
 WSGI_APPLICATION = "mini_server.wsgi.application"
 

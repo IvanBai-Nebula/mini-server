@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
+from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -21,7 +22,7 @@ def send_email_captcha_view(request):
     """
     发送邮箱验证用于注册、密码重置
     :param request: {'email':'string'}
-    :return: {'success':true|false, 'msg':'error'}
+    :return: {'success':true | false, 'msg':'error'}
     """
 
     email = request.data['email']
@@ -42,7 +43,7 @@ def send_email_captcha_view(request):
         如有任何疑问，请联系客服。
         祝您使用愉快！
 
-        照护者系统团队
+        照护日记团队
         """
 
         send_mail("照护者后台注册验证码", message=message,
@@ -53,8 +54,7 @@ def send_email_captcha_view(request):
         request.session['captcha'] = captcha
         request.session.set_expiry(timedelta(minutes=10).total_seconds())
 
-        res = RES_SUCCESS
-        return Response(res)
+        return Response(RES_SUCCESS)
     except Exception as e:
         res.update({'msg': str(e)})
         return Response(res)
@@ -85,7 +85,7 @@ def register_view(request):
     """
     后台管理员注册（开发试用）
     :param request: {'username':'string', 'password':'string', 'email':'string', 'captcha':'string'}
-    :return: {'success':true|false, 'msg':'error'}
+    :return: {'success':true | false, 'msg':'error'}
     """
 
     param = request.data
@@ -94,10 +94,10 @@ def register_view(request):
     if verify_captcha(request) is not None:
         return verify_captcha(request)
 
-    serializer = CustomUserSerializer(data=param)
+    serializer = UserSerializer(data=param)
     if serializer.is_valid():
         serializer.save()
-        return Response(RES_SUCCESS, status=201)
+        return Response(RES_SUCCESS)
     if 'username' in serializer.errors:
         res.update({'msg': '用户名已存在'})
     else:
@@ -107,17 +107,49 @@ def register_view(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def check_exist_view(request):
+    """
+    用于注册、更新个人信息时验证
+    :param request: {'value':'string', 'type':'username' | 'email' | 'phone'}
+    :return: {'success':true | false, 'msg':'error'}
+    """
+
+    param = request.data
+    res = RES_Failed
+    match param['type']:
+        case 'username':
+            if User.objects.filter(username=param['value']).exists():
+                res.update({'msg': '用户名已存在'})
+                return Response(res)
+        case 'email':
+            if User.objects.filter(email=param['value']).exists():
+                res.update({'msg': '邮箱已存在'})
+                return Response(res)
+        case 'phone':
+            if User.objects.filter(phone=param['value']).exists():
+                res.update({'msg': '手机号已存在'})
+                return Response(res)
+        case _:
+            res.update({'msg': '参数错误'})
+            return Response(res)
+
+    return Response(RES_SUCCESS)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
 def login_view(request):
     """
     管理员登陆
     :param request: {'username':'string', password:'string'}
-    :return: {'success':true|false, 'msg':'error',
+    :return: {'success':true | false, 'msg':'error',
             'data':{
                     'id': user.id,
                     'token': token,
                     'username': user.username,
                     'avatar': user.avatar,
-                    'mobile': user.phone
+                    'phone': user.phone,
+                    'email': user.email
                     }
                 }
     """
@@ -128,7 +160,13 @@ def login_view(request):
 
     if not username or not password:
         res.update({'msg': '用户名或密码不能为空'})
-        return Response(res, status=400)
+        return Response(res)
+
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        res.update({'msg': '用户不存在'})
+        return Response(res)
 
     # 使用 Django 内置方法验证用户
     user = authenticate(username=username, password=password)
@@ -137,28 +175,27 @@ def login_view(request):
         res.update({'msg': '用户名或密码错误'})
         return Response(res, status=401)
 
-    try:
-        # 生成 JWT 令牌
-        refresh = RefreshToken.for_user(user)
-        token = str(refresh.access_token)
+    # 生成 JWT 令牌
+    refresh = RefreshToken.for_user(user)
+    token = str(refresh.access_token)
 
-        # 构造响应数据
-        res = RES_SUCCESS
-        res.update({
-            'data': {
-                'id': user.id,
-                'token': token,
-                'username': user.username,
-                'avatar': user.avatar,
-                'mobile': user.phone
-            }
-        })
+    # 构造响应数据
+    res = RES_SUCCESS
+    res.update({
+        'data': {
+            'id': user.id,
+            'token': token,
+            'username': user.username,
+            'avatar': user.avatar,
+            'phone': user.phone,
+            'email': user.email
+        }
+    })
 
-        return Response(res, status=200)
+    user.last_login = timezone.now()
+    user.save()
 
-    except Exception as e:
-        res.update({'msg': str(e)})
-    return Response(res, status=500)
+    return Response(res)
 
 
 @api_view(['POST'])
@@ -167,7 +204,7 @@ def reset_password_view(request):
     """
     重置密码，用于已登录情况下
     :param request: {'old':'string', 'new':'string', 'captcha':'string'}
-    :return: {'success':true|false, 'msg':'error'}
+    :return: {'success':true | false, 'msg':'error'}
     """
 
     param = request.data
@@ -182,8 +219,8 @@ def reset_password_view(request):
         if check_password(param['old'], old_password):
             user.set_password(param['new'])
             user.save()
-            res = RES_SUCCESS
-            return Response(res)
+            return Response(RES_SUCCESS)
+
         res.update({'msg': '旧密码错误'})
         return Response(res)
     except Exception as e:

@@ -40,7 +40,15 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return self.username
+        return f"""
+                id:{self.id},
+                username:{self.username},
+                email:{self.email},
+                phone:{self.phone},
+                is_staff:{self.is_staff},
+                is_active:{self.is_active},
+                date_joined:{self.date_joined},
+                """
 
 
 def generate_default_phone():
