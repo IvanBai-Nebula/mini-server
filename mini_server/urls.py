@@ -18,8 +18,8 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path('user/', include("user.urls")),
-    # path('role/', include("role.urls")),
+    path('admin/', include("admin.urls")),
+    path('weixin/', include("weixin.urls")),
     # path('media/', include("media.urls")),
     # path('questions/', include("questions.urls")),
 

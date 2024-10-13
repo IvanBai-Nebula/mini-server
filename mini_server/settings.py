@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
-    "user.apps.UserConfig",
     "media.apps.MediaConfig",
-    "questions.apps.QuestionsConfig"
+    "questions.apps.QuestionsConfig",
+    "patient.apps.PatientConfig",
+    "admin.apps.AdminConfig",
+    "weixin.apps.WeixinConfig"
 ]
 
 MIDDLEWARE = [
@@ -54,7 +56,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "utils.middleware.AuthRequired"
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -76,7 +77,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # 访问令牌有效期设为 15 分钟
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # 访问令牌有效期设为 7 天
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # 刷新令牌有效期设为 30 天
     'ROTATE_REFRESH_TOKENS': True,  # 旋转刷新令牌
     'BLACKLIST_AFTER_ROTATION': True,  # 加入黑名单
@@ -124,7 +125,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'user.CustomUser'
+AUTH_USER_MODEL = 'weixin.WechatUser'
 
 WSGI_APPLICATION = "mini_server.wsgi.application"
 
