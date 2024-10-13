@@ -3,9 +3,9 @@ from rest_framework import serializers
 from .models import *
 
 
-class WechatUserSerializer(serializers.ModelSerializer):
+class CustomerUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = WechatUser
+        model = CustomerUser
         fields = ('openid', 'username', 'phone', 'avatar')
         extra_kwargs = {
             "openid": {"required": True},
@@ -15,7 +15,7 @@ class WechatUserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        user = WechatUser.objects.create_user({
+        user = CustomerUser.objects.create_user({
             'openid': validated_data.get('openid'),
             'username': validated_data.get('username'),
             'phone': validated_data.get('phone', ''),

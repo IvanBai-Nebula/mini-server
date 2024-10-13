@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
-    "media.apps.MediaConfig",
+    "pages.apps.PagesConfig",
     "questions.apps.QuestionsConfig",
     "patient.apps.PatientConfig",
     "admin.apps.AdminConfig",
@@ -125,7 +125,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'weixin.WechatUser'
+AUTH_USER_MODEL = 'weixin.CustomerUser'
 
 WSGI_APPLICATION = "mini_server.wsgi.application"
 
@@ -144,11 +144,9 @@ DATABASES = {
     # }
     "default": {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mini',
-        'USER': 'root',
-        'PASSWORD': 'byfcjx',
-        'HOST': "tilony.top",
-        'PORT': 3306,
+        'OPTIONS': {
+            'read_default_file': 'db.cnf'
+        }
     }
 }
 
@@ -179,17 +177,68 @@ TIME_ZONE = "Asia/Shanghai"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
 
-MEDIA_URL = "/resource/"
-MEDIA_ROOT = BASE_DIR / "resource"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# 发送邮箱相关配置
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.qq.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "tilony@qq.com"
+EMAIL_HOST_PASSWORD = "ihmbtpwrbqgydgeh"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'django.log',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+        'admin': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+        'weixin': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+    },
+}

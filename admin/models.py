@@ -7,7 +7,7 @@ from django.dispatch import receiver
 
 
 # Create your models here.
-class AdminUser(AbstractUser):
+class User(AbstractUser):
     """
     后台管理员
     """
@@ -15,8 +15,9 @@ class AdminUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=150, unique=True, db_index=True)
     password = models.CharField(max_length=150)
-    avatar = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, unique=True, db_index=True)  # 后期可以用于短信验证登陆等功能
+    email = models.EmailField(max_length=255, unique=True, db_index=True)  # 邮箱验证注册或者重置密码
+    avatar = models.URLField(max_length=255, blank=True)
     is_staff = models.BooleanField(default=True)  # 管理员权限默认开启
     is_active = models.BooleanField(default=True)  # 默认激活
 
@@ -25,7 +26,7 @@ class AdminUser(AbstractUser):
         verbose_name='groups',
         blank=True,
         help_text='The groups this user belongs to.',
-        related_name='admin_user_groups',
+        related_name='user_groups',
         related_query_name='user',
     )
 
@@ -34,19 +35,16 @@ class AdminUser(AbstractUser):
         verbose_name='user permissions',
         blank=True,
         help_text='Specific permissions for this user.',
-        related_name='admin_user_permissions',
+        related_name='user_permissions',
         related_query_name='user',
     )
-
-    class Meta:
-        db_table = 'admin_user'
 
     def __str__(self):
         return self.username
 
 
 def generate_default_phone():
-    last_user = AdminUser.objects.order_by('-id').first()
+    last_user = User.objects.order_by('-id').first()
     if last_user:
         last_phone = last_user.phone or ''
         try:
@@ -58,7 +56,7 @@ def generate_default_phone():
     return 'default-1'
 
 
-@receiver(pre_save, sender=AdminUser)
+@receiver(pre_save, sender=User)
 def set_default_phone(sender, instance, **kwargs):
     if not instance.phone:
         instance.phone = generate_default_phone()
