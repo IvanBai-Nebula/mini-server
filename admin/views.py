@@ -10,6 +10,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 
 from utils.constants import *
 from utils.permissions import IsAdminUser
@@ -140,6 +143,16 @@ def login_success(user):
     res = RES_SUCCESS
     refresh = RefreshToken.for_user(user)
     token = str(refresh.access_token)
+
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+        backend=default_backend()
+    )
+    public_key = private_key.public_key()
+
+    user.private_key = private_key
+
     res.update({
         'data': {
             'id': user.id,
@@ -149,6 +162,7 @@ def login_success(user):
             'email': user.email
         },
         'token': token,
+        'public_key': public_key
     })
     user.last_login = timezone.now()
     user.save()

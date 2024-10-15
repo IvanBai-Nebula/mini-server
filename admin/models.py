@@ -18,6 +18,7 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, unique=True, db_index=True)  # 后期可以用于短信验证登陆等功能
     email = models.EmailField(max_length=255, unique=True, db_index=True)  # 邮箱验证注册或者重置密码
     avatar = models.URLField(max_length=255, blank=True)
+    private_key = models.TextField(blank=True)
     is_staff = models.BooleanField(default=True)  # 管理员权限默认开启
     is_active = models.BooleanField(default=True)  # 默认激活
 

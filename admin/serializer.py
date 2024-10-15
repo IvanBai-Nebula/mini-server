@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True, 'required': True},
             'phone': {'allow_null': True, 'required': False},
             'email': {'required': True},
-            'avatar': {'allow_null': True, 'required': False}
+            'avatar': {'allow_null': True, 'required': False},
         }
 
     def create(self, validated_data):
