@@ -136,6 +136,25 @@ def check_exist_view(request):
     return Response(RES_SUCCESS)
 
 
+def login_success(user):
+    res = RES_SUCCESS
+    refresh = RefreshToken.for_user(user)
+    token = str(refresh.access_token)
+    res.update({
+        'data': {
+            'id': user.id,
+            'username': user.username,
+            'avatar': user.avatar,
+            'phone': user.phone,
+            'email': user.email
+        },
+        'token': token,
+    })
+    user.last_login = timezone.now()
+    user.save()
+    return Response(res)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -145,12 +164,12 @@ def login_view(request):
     :return: {'success':true | false, 'msg':'error',
             'data':{
                     'id': user.id,
-                    'token': token,
                     'username': user.username,
                     'avatar': user.avatar,
                     'phone': user.phone,
                     'email': user.email
                     }
+            'token': token,
                 }
     """
 
@@ -175,27 +194,7 @@ def login_view(request):
         res.update({'msg': '用户名或密码错误'})
         return Response(res, status=401)
 
-    # 生成 JWT 令牌
-    refresh = RefreshToken.for_user(user)
-    token = str(refresh.access_token)
-
-    # 构造响应数据
-    res = RES_SUCCESS
-    res.update({
-        'data': {
-            'id': user.id,
-            'token': token,
-            'username': user.username,
-            'avatar': user.avatar,
-            'phone': user.phone,
-            'email': user.email
-        }
-    })
-
-    user.last_login = timezone.now()
-    user.save()
-
-    return Response(res)
+    return login_success(user)
 
 
 @api_view(['POST'])
