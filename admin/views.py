@@ -10,8 +10,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.backends import default_backend
 
 from utils.constants import *
@@ -169,6 +169,18 @@ def login_success(user):
     return Response(res)
 
 
+def decrypt_data(encrypted_data, private_key):
+    decrypted = private_key.decrypt(
+        encrypted_data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    return decrypted
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
@@ -189,9 +201,9 @@ def login_view(request):
 
     res = RES_Failed
     username = request.data['username']
-    password = request.data['password']
+    raw_password = request.data['password']
 
-    if not username or not password:
+    if not username or not raw_password:
         res.update({'msg': '用户名或密码不能为空'})
         return Response(res)
 
@@ -202,6 +214,8 @@ def login_view(request):
         return Response(res)
 
     # 使用 Django 内置方法验证用户
+    private_key = user.private_key
+    password = decrypt_data(raw_password, private_key)
     user = authenticate(username=username, password=password)
 
     if user is None:
