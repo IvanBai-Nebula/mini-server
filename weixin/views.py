@@ -57,11 +57,11 @@ def quick_login_view(request):
     res = RES_SUCCESS
     res.update({
         'data': {
-            'token': token,
             'username': user.username,
             'avatar': user.avatar,
             'phone': user.phone,
         },
+        'token': token,
         'new': new
     })
 

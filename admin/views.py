@@ -2,6 +2,9 @@ import random
 import string
 from datetime import timedelta
 
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
@@ -10,9 +13,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.backends import default_backend
 
 from utils.constants import *
 from utils.permissions import IsAdminUser
