@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
+from pages.models import Unit
+from questions.models import Set
 from utils.base_model import BaseModel
 
 
@@ -77,6 +79,7 @@ class Profile(BaseModel):
     height = models.IntegerField(blank=True)  # cm
     weight = models.DecimalField(max_digits=4, decimal_places=1)  # kg
     birthday = models.DateField(blank=True)  # 前端自行转成年龄
+    pulse = models.IntegerField(blank=True)  # 心率
     blood_pressure = models.CharField(max_length=20, blank=True)  # 收缩压/舒张压 mmHg
     blood_sugar = models.DecimalField(max_digits=3, decimal_places=1, blank=True)  # mmHg
     blood_fat = models.DecimalField(max_digits=3, decimal_places=1, blank=True)  # mmHg
@@ -90,6 +93,7 @@ class Profile(BaseModel):
                 height:{self.height},
                 weight:{self.weight},
                 birthday:{self.birthday},
+                pulse:{self.pulse},
                 blood_pressure:{self.blood_pressure},
                 blood_sugar:{self.blood_sugar},
                 blood_fat:{self.blood_fat},

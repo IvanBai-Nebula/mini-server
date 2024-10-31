@@ -18,3 +18,27 @@ class CustomerUserSerializer(serializers.ModelSerializer):
         user = CustomerUser.objects.create_user(**validated_data)
 
         return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ('username','height','weight','birthday','pulse','blood_pressure','blood_sugar','blood_fat','user')
+        extra_kwargs = {
+            "username": {'allow_null': True, 'required': False},
+            "height": {'allow_null': True, 'required': False},
+            "weight": {'allow_null': True, 'required': False},
+            "birthday": {'allow_null': True, 'required': False},
+            "pulse": {'allow_null': True, 'required': False},
+            "blood_pressure": {'allow_null': True, 'required': False},
+            "blood_sugar": {'allow_null': True, 'required': False},
+            "blood_fat": {'allow_null': True, 'required': False},
+        }
+
+    def create(self, validated_data):
+        user = CustomerUser.objects.create_user(**validated_data)
+
+        return user
+
+
+
+
