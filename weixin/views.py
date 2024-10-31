@@ -57,12 +57,13 @@ def quick_login_view(request):
     res = RES_SUCCESS
     res.update({
         'data': {
+            'id': user.id,
             'username': user.username,
             'avatar': user.avatar,
             'phone': user.phone,
+            'token': token,
         },
-        'token': token,
-        'new': new
+
     })
 
     user.last_login = timezone.now()

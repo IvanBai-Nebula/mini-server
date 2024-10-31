@@ -5,8 +5,9 @@ from utils.base_model import BaseModel
 
 # 定义类别模型
 class Category(BaseModel):
-    parent = models.IntegerField(default=0)
-    name = models.CharField(max_length=255, unique=True, null=False, blank=False, db_index=True)
+    name = models.CharField(max_length=255, unique=True, db_index=True)
+
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
 
 
 # 定义文章模型

@@ -159,10 +159,10 @@ def login_success(user):
             'username': user.username,
             'avatar': user.avatar,
             'phone': user.phone,
-            'email': user.email
+            'email': user.email,
+            'token': token,
+            'public_key': public_key
         },
-        'token': token,
-        'public_key': public_key
     })
     user.last_login = timezone.now()
     user.save()

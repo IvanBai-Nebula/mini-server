@@ -1,7 +1,7 @@
 [client]
-database = mini
+database = care_daily
 user = root
 password = byfcjx
-host = tilony.top
+host = localhost
 port = 3306
 default-character-set = utf8
