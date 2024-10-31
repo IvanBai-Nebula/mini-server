@@ -159,10 +159,10 @@ def login_success(user):
             'username': user.username,
             'avatar': user.avatar,
             'phone': user.phone,
-            'email': user.email,
-            'token': token,
-            'public_key': public_key
+            'email': user.email
         },
+        'token': token,
+        'public_key': public_key
     })
     user.last_login = timezone.now()
     user.save()
@@ -253,3 +253,62 @@ def reset_password_view(request):
     except Exception as e:
         res.update({'msg': str(e)})
         return Response(res)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def list_view(request):
+    """
+    列出所有用户
+    :param request:
+    :return:{"success": true
+        'data':{'id':'uuid',
+                'username':'string',
+                'avatar':'string',
+                'is_staff': true,
+                'is_active': true
+         }
+       }
+    """
+    users = User.objects.all()  # 获取所有用户
+    user_data = []
+
+    if users.exists():  # 检查是否存在用户
+        for user in users:
+            user_data.append({
+                'data': {
+                    'id': str(user.id),
+                    'username': user.username,
+                    'avatar': user.avatar.url if user.avatar else None,
+                    'is_staff': user.is_staff,
+                    'is_active': user.is_active,
+                }
+            })
+        return Response({
+            'success': True,
+            'data': user_data
+        })
+    else:
+        return Response({
+            'success': False,
+            'error': '没有用户数据可返回'
+        })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def update_avatar_view(request):
+    """
+    更新管理员头像
+    :param request: {'avatar': 'string'}
+    :return:
+    {
+    "success": true
+    """
+    user = request.user  # 获取当前用户
+
+    if 'avatar' not in request.FILES:
+        return Response({'msg': '缺少头像文件'})
+
+    user.avatar = request.FILES['avatar']
+    user.save()
+
+    return Response({'msg': '头像更新成功', 'avatar': user.avatar.url})

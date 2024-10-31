@@ -8,5 +8,7 @@ urlpatterns = [
     path('reset_password', views.reset_password_view, name='reset_password'),
     path('check_exist', views.check_exist_view, name='check_exist'),
     path('send_email_captcha', views.send_email_captcha_view, name='send_email_captcha'),
+    path('list_view', views.list_view, name='list_view'),
+    path('updata_avatar', views.update_avatar_view, name='update_avatar')
 
 ]
