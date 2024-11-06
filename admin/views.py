@@ -254,8 +254,9 @@ def reset_password_view(request):
         res.update({'msg': str(e)})
         return Response(res)
 
+
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([AllowAny])
 def list_view(request):
     """
     列出所有用户
@@ -292,6 +293,7 @@ def list_view(request):
             'success': False,
             'error': '没有用户数据可返回'
         })
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, IsAdminUser])

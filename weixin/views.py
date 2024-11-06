@@ -1,11 +1,12 @@
 import requests
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from utils.constants import *
+from utils.permissions import IsWechatUser
 from weixin.models import *
 from weixin.serializer import CustomerUserSerializer, ProfileSerializer
 
@@ -97,6 +98,7 @@ def get_openid(code):
     else:
         raise Exception("Failed to get openid and session_key: " + str(data))
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def info_view(request):
@@ -124,6 +126,7 @@ def info_view(request):
 
     serializer = CustomerUserSerializer(user)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -153,7 +156,7 @@ def list_view(request):
             user_data.append({
                 'id': str(user.id),
                 'username': user.username,
-                'avatar': user.avatar.url if user.avatar else None,
+                'avatar': user.avatar if user.avatar else None,
                 'phone': user.phone,
                 'is_active': user.is_active,
             })
@@ -169,8 +172,8 @@ def list_view(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
-def updata_avatar_view(request):
+@permission_classes([IsAuthenticated])
+def update_avatar_view(request):
     """
     更新用户头像
     :param request: {'avatar': 'string'}
@@ -202,7 +205,6 @@ def updata_avatar_view(request):
 #         if CustomerUser.objects.filter(username=param['value']).exists():
 #             res.update({'msg': '用户名已存在'})
 #             return Response(res)
-
 
 
 # @api_view(['POST'])
@@ -243,6 +245,3 @@ def updata_avatar_view(request):
 #         return Response({'msg': '注册成功'})
 #     else:
 #         return Response({'msg': '注册失败'})
-
-
-

@@ -17,7 +17,7 @@ class CustomerUser(AbstractUser):
 
     id = models.CharField(max_length=50, primary_key=True)  # 由openid微信用户唯一标识
     username = models.CharField(max_length=150, unique=True)
-    avatar = models.CharField(max_length=255, blank=True)  # 头像可以为空，使用前端默认头像
+    avatar = models.URLField(max_length=255, blank=True)  # 头像可以为空，使用前端默认头像
     phone = models.CharField(max_length=20, unique=True, blank=True)  # 可用于后期的手机号登陆
     is_active = models.BooleanField(default=True)  # 默认激活
 
